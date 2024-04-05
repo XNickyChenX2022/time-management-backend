@@ -19,14 +19,14 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/users")
-    public Iterable<User> getAllUsers(@RequestParam Integer param) {
-        return this.userRepository.findAll();
-    }
+    // @GetMapping("/users")
+    // public Iterable<User> getAllUsers(@RequestParam Integer param) {
+    // return this.userRepository.findAll();
+    // }
 
-    @GetMapping("/users/:id")
-    public Optional<User> getUserbyId(@RequestParam Integer param) {
-        return this.userRepository.findById(param);
-    }
+    // @GetMapping("/users/{id}")
+    // public Optional<User> getUserbyId(@RequestParam Integer param) {
+    // return this.userRepository.findById(param);
+    // }
 
 }

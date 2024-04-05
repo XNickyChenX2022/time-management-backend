@@ -1,6 +1,5 @@
 package com.example.timemanagementapp.security;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -11,23 +10,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.example.timemanagementapp.dto.transfer.UserDetailsTransferDTO;
-import com.example.timemanagementapp.exceptions.InvalidTokenException;
+import com.example.timemanagementapp.dto.users.UserDetailsTransferDTO;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-// import io.jsonwebtoken.*;
 @Component
 public class JwtUtil {
 
-    private long EXPIRATION_TIME = 30 * 24 * 60 * 60;
+    private long EXPIRATION_TIME = 30L * 24 * 60 * 60 * 1000;
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     @Value("${jwt.token}")
@@ -40,8 +35,9 @@ public class JwtUtil {
 
     public String generateToken(Authentication authentication) {
         UserDetailsTransferDTO userDTO = (UserDetailsTransferDTO) authentication.getPrincipal();
-        return Jwts.builder().subject(userDTO.getUsername()).expiration(
-                new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+        return Jwts.builder().subject(userDTO.getUsername()).issuedAt(new Date()).expiration(
+                new Date((new Date()).getTime()
+                        + EXPIRATION_TIME))
                 .signWith(key())
                 .compact();
     }

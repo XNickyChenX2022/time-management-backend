@@ -10,23 +10,28 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.example.timemanagementapp.dto.request.LoginRequestDTO;
-import com.example.timemanagementapp.dto.request.RegisterRequestDTO;
-import com.example.timemanagementapp.dto.response.JwtReponseDTO;
-import com.example.timemanagementapp.dto.transfer.UserDetailsTransferDTO;
+import com.example.timemanagementapp.dto.users.UserDetailsTransferDTO;
+import com.example.timemanagementapp.request.users.LoginRequestDTO;
+import com.example.timemanagementapp.request.users.RegisterRequestDTO;
+import com.example.timemanagementapp.response.users.JwtReponse;
+import com.example.timemanagementapp.security.AuthTokenFilter;
 import com.example.timemanagementapp.security.JwtUtil;
 import com.example.timemanagementapp.services.UserService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class AuthorizationController {
     private final UserService userService;
 
     private final AuthenticationManager authenticationManager;
 
     private final JwtUtil jwtUtil;
+
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationController.class);
 
     public AuthorizationController(UserService userService, AuthenticationManager authenticationManager,
@@ -37,18 +42,19 @@ public class AuthorizationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtReponseDTO> login(@RequestBody LoginRequestDTO LoginRequestDTO) {
+    public ResponseEntity<JwtReponse> login(@Valid @RequestBody LoginRequestDTO LoginRequestDTO) {
+        logger.info("working");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(LoginRequestDTO.getUsername(), LoginRequestDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtil.generateToken(authentication);
-        return ResponseEntity.ok(new JwtReponseDTO(jwt, LoginRequestDTO.getUsername()));
+        return ResponseEntity.ok(new JwtReponse(jwt, LoginRequestDTO.getUsername()));
 
     }
 
     @PostMapping("/register")
-    public ResponseEntity<JwtReponseDTO> register(@RequestBody RegisterRequestDTO registerRequestDTO) {
-
+    public ResponseEntity<JwtReponse> register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
+        logger.info("workingr");
         userService
                 .createUser(
                         new UserDetailsTransferDTO(registerRequestDTO.getUsername(), registerRequestDTO.getPassword()));
@@ -57,7 +63,7 @@ public class AuthorizationController {
                         registerRequestDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtil.generateToken(authentication);
-        return ResponseEntity.ok(new JwtReponseDTO(jwt, registerRequestDTO.getUsername()));
+        return ResponseEntity.ok(new JwtReponse(jwt, registerRequestDTO.getUsername()));
     }
 
     @GetMapping("/test")
